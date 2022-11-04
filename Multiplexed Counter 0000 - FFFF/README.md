@@ -9,3 +9,4 @@ Multiple I/O for different modes:
 -Forward/Backward Counter Mode
 
 -Customized Value from binary 0-F on each segment.
+
