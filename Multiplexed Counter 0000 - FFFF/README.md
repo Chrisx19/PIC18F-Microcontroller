@@ -10,3 +10,4 @@ Multiple I/O for different modes:
 
 -Customized Value from binary 0-F on each segment.
 
+![Binary Counter](https://user-images.githubusercontent.com/107272321/199903760-b190125f-75aa-489b-bbe9-45de4a82131a.png)
