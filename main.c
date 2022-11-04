@@ -1,61 +1,7 @@
-#define _XTAL_FREQ 10000000
+#include <xc.h>
+#define _XTAL_FREQ 4000000
 
-void decoder(char i)					//Digits
-    {
-        switch (i)
-        {
-            case 0:
-                LATD = ~63;
-                break;
-            case 1:
-                LATD = ~6;
-                break;
-            case 2:
-                LATD = ~91;
-                break;
-            case 3:
-                LATD = ~79;
-                break;
-            case 4:
-                LATD = ~102;
-                break;
-            case 5:
-                LATD = ~109;
-                break;
-            case 6:
-                LATD = ~125;
-                break;
-            case 7:
-                LATD = ~39;
-                break;
-            case 8:
-                LATD = ~127;
-                break;
-            case 9:
-                LATD = ~111;
-                break;
-            case 10:
-                LATD = ~119;
-                break;
-            case 11:
-                LATD = ~124;
-                break;
-            case 12:
-                LATD = ~57;
-                break;
-            case 13:
-                LATD = ~94;
-                break;
-            case 14:
-                LATD = ~121;
-                break;
-            case 15:
-                LATD = ~113;
-                break;
-        }
-    }
-
-void decoder_dec(char g)					//Digits with decimal points
+void decoder_dec(char g)
     {
         switch (g)
         {
@@ -92,7 +38,7 @@ void decoder_dec(char g)					//Digits with decimal points
         }
     }     
 
-void segment(char num)							//Display Values
+void segment(char num)
 {
     LATF = 0x00;
     switch(num)
@@ -116,133 +62,114 @@ void segment(char num)							//Display Values
     }
 }
 
-void four_digits1(unsigned int n)       				//HEX
+void four_digits(unsigned int h)               //Just For Fun (DECIMALS)
 {
-    unsigned char hundreds      = ((n / 256) % 16);
-    unsigned char tens          = ((n / 16) % 16);
-    unsigned char ones          = (n % 16);
-    
-    decoder(ones);
-    segment(0);
-    
-    decoder(tens);
-    segment(1);
-    
-    decoder(hundreds);
-    segment(2);
-}
-
-void four_digits3(unsigned int h)               			//Decimals
-{
-    unsigned char thousands     = (h / 1000);
     unsigned char hundreds      = ((h / 100) % 10);
     unsigned char tens          = ((h / 10) % 10);
     unsigned char ones          = (h % 10);
     
-    decoder(ones);
+    decoder_dec(ones);
     segment(0);
     
-    decoder(tens);
+    decoder_dec(tens);
     segment(1);
     
     decoder_dec(hundreds);
     segment(2);
 }
-
-int main(void)                      	    //ADC Configuration plus I/O Ports
+void main(void)
 {
-    ADCON0bits.FM = 1;              	    //ADC Configuration
-    ADCON0bits.CS = 0;
-    ADCON0bits.ON = 1;
-    
-    TRISFbits.TRISF4 = 0;           	    //Output values to all segment 
+    TRISCbits.TRISC1 = 0;
+    TRISD = 0x00;
+    TRISFbits.TRISF4 = 0;
     TRISFbits.TRISF5 = 0;
     TRISFbits.TRISF6 = 0;
     TRISFbits.TRISF7 = 0;
-    ANSELF = 0x00;
     
-    TRISD = 0x00;                   	    //Output Values
-    ANSELD = 0x00;
-
-    ANSELAbits.ANSELA3 = 0;         	    //Enable push button 
-    TRISAbits.TRISA3 = 1;
-    WPUAbits.WPUA3 = 0x1;
-    
-    ANSELFbits.ANSELF0 = 0;         	    //Enable dipswitch 2 inputs
+    ANSELFbits.ANSELF0 = 0;         //Enable dipswitch 2 inputs
     TRISFbits.TRISF0 = 1;
     WPUFbits.WPUF0 = 0x1;
     ANSELFbits.ANSELF1 = 0;
     TRISFbits.TRISF1 = 1;
     WPUFbits.WPUF1 = 0x1;
+    
+    #pragma config JTAGEN = OFF
+    
+    ADCON0bits.FM = 1;              //ADC Configuration  RIGHT ALIGNED
+    ADCON0bits.CS = 0;
+    ADCON0bits.ON = 1;
+    
+    CCP2CONbits.MODE = 0x0c;
+    CCP2CONbits.EN = 1;
+    CCP2CONbits.FMT = 0;
+    CCPR2H = 0x0;
+    CCPR2L = 0x0;
+    CCPTMRS0bits.C2TSEL = 0x1; //PWM TMR2
+    
+    T2CLKCON = 0x01;
+    T2HLT = 0x00;
+    T2RST = 0x00;
+    T2PR = 0xFF;
+    T2TMR = 0x00;
+    PIR3bits.TMR2IF = 0;
+    T2CONbits.ON = 1;
+    T2CONbits.CKPS = 0;
 
-    unsigned int total, total2, total3;
-    while(1)
+   unsigned int total, total2, total3, duty; 
+    
+    while (1)
     {
-//      Analog - CHANNEL 0                               	         //3.30 Volts
-        if (PORTFbits.RF0 == 1 && PORTFbits.RF1 == 1)               //CHANNEL 0
+//      Analog - CHANNEL 0
+        if (PORTFbits.RF0 == 1 && PORTFbits.RF1 == 1)               //CHANNEL 0: 3.3v
         {
             decoder(0);
             segment(3);
-            if(PORTAbits.RA3 == 0)
-            {
             ADPCH=0x00; // set input ch0 - PORTA - bit0
             ADCON0bits.GO=1; // start the ADC
             while (ADCON0bits.GO); // wait here until the ADC is done
             
-            total = (ADRESH*256 + ADRESL)  ;        //12bits
-            four_digits1(total);                
-            }
-            else
-            {
-               four_digits1(0); 
-            }
+            total = (ADRESH*256 + ADRESL);        //12bits
+            four_digits(total/ 12.4090909);   
+
         }
-        //Analog - CHANNEL 1                               	   //5.00 Volts
-        if(PORTFbits.RF0 == 0 && PORTFbits.RF1 == 1)               //CHANNEL 1
+        //Analog - CHANNEL 1
+        if(PORTFbits.RF0 == 0 && PORTFbits.RF1 == 1)               //CHANNEL 1: 5v
         {
             decoder(1);
             segment(3);
-            if(PORTAbits.RA3 == 0)
-            {
-            ADPCH=0x01; // set input ch1 - PORTA - bit0
+
+            ADPCH=0x01; // set input ch0 - PORTA - bit0
             ADCON0bits.GO=1; // start the ADC
             while (ADCON0bits.GO); // wait here until the ADC is done
             
             total2 = ADRESH*256 + ADRESL;
-            four_digits1(total2);                
-            }
-            else
-            {
-               four_digits1(0); 
-            }
+            four_digits(total2/8.19);                
         }
-        
-        //Analog - CHANNEL 2                                   //9.99 Volts
-        if(PORTFbits.RF0 == 1 && PORTFbits.RF1 == 0)	   	    //CHANNEL 2               
+        //Analog - CHANNEL 2                                Dimmable Segment PWM
+        if(PORTFbits.RF0 == 1 && PORTFbits.RF1 == 0)               
         {
             decoder(2);
+            segment(0);
+            LATD = ~64;
+            segment(1);
+            LATD = ~118;
+            segment(2);
+            decoder(12);
             segment(3);
-            if(PORTAbits.RA3 == 0)
-            {
-            ADPCH=0x02; // set input ch2 - PORTA - bit0
+
+            ADPCH=0x02; // set input ch0 - PORTA - bit0
             ADCON0bits.GO=1; // start the ADC
             while (ADCON0bits.GO); // wait here until the ADC is done
-
             
-            total3 = ADRESH*256 + ADRESL;
-            four_digits3(total3/4.0990991);                
-            }
-            else
-            {
-               four_digits1(0); 
-            }
-        }
-        //OUT OF CHANNEL BOUND --- Just for Fun --- NON CHANNEL
-        if(PORTFbits.RF0 == 0 && PORTFbits.RF1 == 0)               
-        {
-            decoder(14);
-            segment(3);
-            four_digits1(3822); 		//EEEE      
+            duty = ADRESH*256 + ADRESL;
+            
+            duty &= 0x03FF;            
+            duty = duty/4.002932551;
+            CCPR2H = duty >> 8;
+            CCPR2L = duty;
         }
     }    
 }
+/**
+ End of File
+*/
