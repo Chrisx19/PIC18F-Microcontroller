@@ -125,71 +125,8 @@ void main(void)
     unsigned char total;
     
     while(1)
-    {/*=================================LOADING VALUES=====================================*/
-        if(PORTFbits.RF3 == 1 && PORTFbits.RF2 == 1 && PORTFbits.RF1 == 1 && PORTFbits.RF0 == 1)
-        {
-            total = 0;
-        }
-        if(PORTFbits.RF3 == 1 && PORTFbits.RF2 == 1 && PORTFbits.RF1 == 1 && PORTFbits.RF0 == 0)
-        {
-            total = 1;
-        }
-        if(PORTFbits.RF3 == 1 && PORTFbits.RF2 == 1 && PORTFbits.RF1 == 0 && PORTFbits.RF0 == 1)
-        {
-            total = 2;
-        }
-        if(PORTFbits.RF3 == 1 && PORTFbits.RF2 == 1 && PORTFbits.RF1 == 0 && PORTFbits.RF0 == 0)
-        {
-            total = 3;
-        }
-        if(PORTFbits.RF3 == 1 && PORTFbits.RF2 == 0 && PORTFbits.RF1 == 1 && PORTFbits.RF0 == 1)
-        {
-            total = 4;
-        }
-        if(PORTFbits.RF3 == 1 && PORTFbits.RF2 == 0 && PORTFbits.RF1 == 1 && PORTFbits.RF0 == 0)
-        {
-            total = 5;
-        }
-        if(PORTFbits.RF3 == 1 && PORTFbits.RF2 == 0 && PORTFbits.RF1 == 0 && PORTFbits.RF0 == 1)
-        {
-            total = 6;
-        }
-        if(PORTFbits.RF3 == 1 && PORTFbits.RF2 == 0 && PORTFbits.RF1 == 0 && PORTFbits.RF0 == 0)
-        {
-            total = 7;
-        }
-        if(PORTFbits.RF3 == 0 && PORTFbits.RF2 == 1 && PORTFbits.RF1 == 1 && PORTFbits.RF0 == 1)
-        {
-            total = 8;
-        }
-        if(PORTFbits.RF3 == 0 && PORTFbits.RF2 == 1 && PORTFbits.RF1 == 1 && PORTFbits.RF0 == 0)
-        {
-            total = 9;
-        }
-        if(PORTFbits.RF3 == 0 && PORTFbits.RF2 == 1 && PORTFbits.RF1 == 0 && PORTFbits.RF0 == 1)
-        {
-            total = 10;
-        }
-        if(PORTFbits.RF3 == 0 && PORTFbits.RF2 == 1 && PORTFbits.RF1 == 0 && PORTFbits.RF0 == 0)
-        {
-            total = 11;
-        }
-        if(PORTFbits.RF3 == 0 && PORTFbits.RF2 == 0 && PORTFbits.RF1 == 1 && PORTFbits.RF0 == 1)
-        {
-            total = 12;
-        }
-        if(PORTFbits.RF3 == 0 && PORTFbits.RF2 == 0 && PORTFbits.RF1 == 1 && PORTFbits.RF0 == 0)
-        {
-            total = 13;
-        }
-        if(PORTFbits.RF3 == 0 && PORTFbits.RF2 == 0 && PORTFbits.RF1 == 0 && PORTFbits.RF0 == 1)
-        {
-            total = 14;
-        }
-        if(PORTFbits.RF3 == 0 && PORTFbits.RF2 == 0 && PORTFbits.RF1 == 0 && PORTFbits.RF0 == 0)
-        {
-            total = 15;
-        }
+    {
+
 /*===================================PICKING SEGMENT DISPLAY=================================*/        
         if(PORTFbits.RF5 == 1 && PORTFbits.RF4 == 1)        
         {
